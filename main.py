@@ -6,7 +6,7 @@ from payment_dict import *
 from datetime import datetime
 date = str(datetime.now()).split(' ')[0].split('-')[2]
 
-bot = telebot.TeleBot("5403904951:AAEUalDX40Rnmj36Vv71nwCslEN4kgjpwfc", parse_mode=None)
+bot = telebot.TeleBot("5509175948:AAEhGSNRGVYjcjT0YDrLRFH39xtqzwuDIIo", parse_mode=None)
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -27,7 +27,8 @@ def start_proccesing(message):
     global date
     st = check_statement(message.chat.id)
     don_status = check_don(message.chat.id)
-    if st == '1' and message.text != 'Начать процесс поиска рецептов по моим компонентам' and message.text != 'Оформить ежемесячную подписку на наш сервис' or message.text == '/start' or message.text == 'Вернуться на начальное окно':
+    if message.text == 'Вернуться на начальное окно':
+        clearr(message.chat.id, 'pays')
         replace_statement(message.chat.id, ' 1')
         markup = types.ReplyKeyboardMarkup()
         itembtn1 = types.KeyboardButton('Начать процесс поиска рецептов по моим компонентам')
@@ -39,7 +40,23 @@ def start_proccesing(message):
 3)Насладиться коктейлем. Здесь вы можете найти как классику так и нечто новое:)
 
 P.S. Наличие инвентаря бармена не обязательно, если у вас достаточно умелые руки)
-P.P.S. Вы можете оформить подписку на наш сервис за 50р, чтобы обеспечить себе пожизненный PRO status, добавляющий вас в особый канал спонсоров и снимающий ограничение на количество запросоов в день
+P.P.S. Вы можете оформить подписку на наш сервис за 50р/мес, чтобы обеспечить себе PRO status, добавляющий вас в особый канал спонсоров и снимающий ограничение на количество запросоов в день
+P.P.P.S. Не забудьте про лЁд""", reply_markup=markup)
+        tyty = open('currentingr.txt', 'r', encoding='utf-8').readline().split('|')
+        bot.send_message(message.chat.id, 'текущий список возможных в использовании ингридиентов:\n' + ', '.join(tyty))
+    elif st == '1' and message.text != 'Начать процесс поиска рецептов по моим компонентам' and message.text != 'Оформить ежемесячную подписку на наш сервис' or message.text == '/start':
+        replace_statement(message.chat.id, ' 1')
+        markup = types.ReplyKeyboardMarkup()
+        itembtn1 = types.KeyboardButton('Начать процесс поиска рецептов по моим компонентам')
+        itembtn2 = types.KeyboardButton('Оформить ежемесячную подписку на наш сервис')
+        markup.add(itembtn1, itembtn2)
+        bot.send_message(message.chat.id, """Инструкция по работе со Мной:
+1)Заполнить список того, что у вас есть, вбивая поочередно все компоненты(лёд, еда, фрукты, специи. Желательно указывать все, иначе я не смогу подобрать для вас коктейль)
+2)Выбрать из списка предложенных рецептов тот, который вам по душе.
+3)Насладиться коктейлем. Здесь вы можете найти как классику так и нечто новое:)
+
+P.S. Наличие инвентаря бармена не обязательно, если у вас достаточно умелые руки)
+P.P.S. Вы можете оформить подписку на наш сервис за 50р/мес, чтобы обеспечить себе PRO status, добавляющий вас в особый канал спонсоров и снимающий ограничение на количество запросоов в день
 P.P.P.S. Не забудьте про лЁд""", reply_markup=markup)
         tyty = open('currentingr.txt', 'r', encoding='utf-8').readline().split('|')
         bot.send_message(message.chat.id, 'текущий список возможных в использовании ингридиентов:\n' + ', '.join(tyty))
@@ -68,6 +85,12 @@ P.P.P.S. Не забудьте про лЁд""", reply_markup=markup)
 Благодарим за покупку и удачного пользования
 (Для перехода на начальный экран отправьте любое сообщение)
 ''')
+            new_date = str(datetime.now()).split(' ')[0].split('-')[2]
+            g = open('timeline', 'w', encoding='utf-8').readlines()
+            y = open('timeline', 'w', encoding='utf-8')
+            g.append(str(message.chat.id) + '\t' + str(int(new_date)-1))
+            y.write(g)
+
         elif itog == 'WAITING':
             markup = types.ReplyKeyboardMarkup()
             itembtn1 = types.KeyboardButton('Вернуться на начальное окно')
@@ -77,7 +100,7 @@ P.P.P.S. Не забудьте про лЁд""", reply_markup=markup)
                              reply_markup=markup)
         else:
             replace_statement(message.chat.id, ' 1')
-            bot.send_message(message.chat.id, 'К сожалению, срок оплаты уже прошел. Повторите снова чуть позже')
+            bot.send_message(message.chat.id, 'К сожалению, срок оплаты уже прошел. Попробуйте оформить подписку снова. Приносим свои извинения')
 
 
 
@@ -96,7 +119,7 @@ P.P.P.S. Не забудьте про лЁд""", reply_markup=markup)
 
     elif message.text == 'Начать процесс поиска рецептов по моим компонентам':
         e = open('already used', 'r').readline().split('|')
-        if str(message.chat.id) not in e:
+        if str(message.chat.id) not in e or don_status == 1:
             replace_statement(str(message.chat.id), ' 2')
             bot.send_message(message.chat.id,
                              'Прекрасно, теперь присылайте список того, что у вас есть(1 сообщение - 1 компонент)')

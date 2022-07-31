@@ -1,4 +1,5 @@
 from datetime import datetime
+import payment_dict
 def adding_statement(value):
     f = open('statement', 'r', encoding='utf-8').readlines()
     if value not in f and value + '\n' not in f:
@@ -23,11 +24,12 @@ def check_statement(id):
 
 def replace_statement(id, final_value):
     f = open('statement', 'r',encoding='utf-8').readlines()
+    new_mass = []
     for i in f:
-        if str(id) in i.split(' ') or i == '\n':
-            f.remove(i)
+        if str(id) not in i.split(' ') and i != '\n':
+            new_mass.append(i)
     t = open('statement', 'w+')
-    t.write('\n'.join(f))
+    t.write('\n'.join(new_mass))
     t.close()
     adding_statement(str(id) + final_value)
 
@@ -128,4 +130,13 @@ def check_date(date):
     if new_date > date:
         h = open('already used', 'w', encoding='utf-8')
         h.write('000|')
+    checkerr = open('timeline', 'r', encoding='utf-8').readlines()
+    for t in checkerr:
+        print(t.split('\t')[:-1:])
+        if t.split('\t')[1][:-1:] == new_date:
+            payment_dict.clearr(t.split('\t')[0], 'timeline')
+            sh = open('dons', 'r', encoding='utf-8').readline().split('|')
+            sh.remove(t.split('\t')[0])
+            k = open('dons','w', encoding='utf-8')
+            k.write('|'.join(sh) + '|')
     return new_date
